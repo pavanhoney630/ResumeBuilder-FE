@@ -18,82 +18,97 @@ export default function Dashboard() {
 
   // Fetch all resume versions
   useEffect(() => {
-  const fetchResumes = async () => {
+    const fetchResumes = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        console.log("Fetching resumes for userId:", userId);
+
+        const res = await axios.get(
+          `${BaseUrl}/api/resume/versions/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        console.log("API response:", res.data);
+
+        const resumesData = res.data.ResumeVersions || [];
+
+        // Add resumeId for navigation
+        const allVersions = resumesData.map((version) => ({
+          ...version,
+          resumeId: version.resumeId || version._id,
+        }));
+
+        console.log("All versions:", allVersions);
+
+        setResumes(allVersions);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load resumes");
+        setResumes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResumes();
+  }, [userId]);
+
+  const handleDelete = async (resumeId, version) => {
+    if (!window.confirm(`Are you sure you want to delete version ${version}?`))
+      return;
+
     try {
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
 
-      console.log("Fetching resumes for userId:", userId);
+      await axios.delete(
+        `${BaseUrl}/api/resume/delete/${resumeId}/${version}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      const res = await axios.get(`${BaseUrl}/api/resume/versions/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Update state: remove only the deleted version
+      setResumes((prevResumes) =>
+        prevResumes.filter(
+          (r) => !(r.resumeId === resumeId && r.version === version)
+        )
+      );
 
-      console.log("API response:", res.data);
-
-      const resumesData = res.data.ResumeVersions || [];
-
-      // Add resumeId for navigation
-      const allVersions = resumesData.map((version) => ({
-        ...version,
-        resumeId: version.resumeId || version._id,
-      }));
-
-      console.log("All versions:", allVersions);
-
-      setResumes(allVersions);
+      toast.success(`Version ${version} deleted successfully!`);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load resumes");
-      setResumes([]);
-    } finally {
-      setLoading(false);
+      toast.error("Error deleting resume version");
     }
   };
 
-  fetchResumes();
-}, [userId]);
-
-
-
-  const handleDelete = async (resumeId) => {
-    if (!window.confirm("Are you sure you want to delete this resume?")) return;
+  const handleDownload = async (resumeId, version) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${BaseUrl}/api/resume/update/${resumeId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setResumes(resumes.filter((r) => r._id !== resumeId));
-      toast.success("Resume deleted!");
+      const response = await axios.get(
+        `${BaseUrl}/api/resume/download/${resumeId}/${version}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: "blob", // important for binary file
+        }
+      );
+
+      // Create a blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `resume_v${version}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch (err) {
-      toast.error("Error deleting resume");
+      toast.error("Failed to download PDF");
+      console.error(err);
     }
   };
-  const handleDownload = async (resumeId, version) => {
-  try {
-    const token = localStorage.getItem("token");
-    const response = await axios.get(
-      `${BaseUrl}/api/resume/download/${resumeId}/${version}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: "blob", // important for binary file
-      }
-    );
-
-    // Create a blob URL and trigger download
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `resume_v${version}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (err) {
-    toast.error("Failed to download PDF");
-    console.error(err);
-  }
-};
-
 
   return (
     <div
@@ -168,7 +183,9 @@ export default function Dashboard() {
                       <button
                         className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
                         onClick={() =>
-                          navigate(`/view-resume/${resume.resumeId}?version=${resume.version}`)
+                          navigate(
+                            `/view-resume/${resume.resumeId}?version=${resume.version}`
+                          )
                         }
                       >
                         <FaEye /> View
@@ -178,7 +195,9 @@ export default function Dashboard() {
                       <button
                         className="btn btn-sm btn-outline-success d-flex align-items-center gap-1"
                         onClick={() =>
-                          navigate(`/edit-resume/${resume.resumeId}?version=${resume.version}`)
+                          navigate(
+                            `/edit-resume/${resume.resumeId}?version=${resume.version}`
+                          )
                         }
                       >
                         <FaEdit /> Edit
@@ -186,17 +205,20 @@ export default function Dashboard() {
 
                       {/* Download PDF */}
                       <button
-  className="btn btn-sm btn-outline-warning d-flex align-items-center gap-1"
-  onClick={() => handleDownload(resume.resumeId, resume.version)}
->
-  <FaDownload /> PDF
-</button>
-
+                        className="btn btn-sm btn-outline-warning d-flex align-items-center gap-1"
+                        onClick={() =>
+                          handleDownload(resume.resumeId, resume.version)
+                        }
+                      >
+                        <FaDownload /> PDF
+                      </button>
 
                       {/* Delete Resume Version */}
                       <button
                         className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
-                        onClick={() => handleDelete(resume._id)}
+                        onClick={() =>
+                          handleDelete(resume.resumeId, resume.version)
+                        }
                       >
                         <FaTrash /> Delete
                       </button>

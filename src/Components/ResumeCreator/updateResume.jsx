@@ -24,14 +24,19 @@ export default function EditResume() {
     const fetchResume = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`${BaseUrl}/api/resume/current/${resumeId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${BaseUrl}/api/resume/current/${resumeId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (!res.data.data) throw new Error("Resume not found");
 
         const data = res.data.data;
-        const versionData = data.versions.find((v) => v.version === versionNumber);
+        const versionData = data.versions.find(
+          (v) => v.version === versionNumber
+        );
         if (!versionData) throw new Error("Version not found");
 
         setResume({ ...data, currentVersion: versionData });
@@ -81,21 +86,32 @@ export default function EditResume() {
     }
   };
 
-  if (loading) return <p className="text-center mt-5 fw-bold">Loading resume...</p>;
-  if (!resume) return <p className="text-center mt-5 text-danger">Resume not found ❌</p>;
+  if (loading)
+    return <p className="text-center mt-5 fw-bold">Loading resume...</p>;
+  if (!resume)
+    return <p className="text-center mt-5 text-danger">Resume not found ❌</p>;
 
   const cv = resume.currentVersion;
 
   return (
     <div
       className="py-5"
-      style={{ background: "linear-gradient(135deg, #f6d365, #fda085)", minHeight: "100vh" }}
+      style={{
+        background: "linear-gradient(135deg, #f6d365, #fda085)",
+        minHeight: "100vh",
+      }}
     >
       <div className="container mb-4 d-flex justify-content-between">
-        <button className="btn btn-outline-dark d-flex align-items-center gap-2" onClick={() => navigate(-1)}>
+        <button
+          className="btn btn-outline-dark d-flex align-items-center gap-2"
+          onClick={() => navigate(-1)}
+        >
           <FaArrowLeft /> Back
         </button>
-        <button className="btn btn-success d-flex align-items-center gap-2" onClick={handleSave}>
+        <button
+          className="btn btn-success d-flex align-items-center gap-2"
+          onClick={handleSave}
+        >
           <FaSave /> Save Changes
         </button>
       </div>
@@ -104,17 +120,19 @@ export default function EditResume() {
         {/* Personal Info */}
         <h4 className="fw-bold border-bottom pb-2 mb-4">👤 Personal Info</h4>
         <div className="row g-3 mb-4">
-          {["firstName", "lastName", "email", "phone", "summary"].map((field, idx) => (
-            <div className="col-md-6 mb-3" key={idx}>
-              <input
-                type={field === "email" ? "email" : "text"}
-                className="form-control"
-                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                value={cv.personal?.[field] || ""}
-                onChange={(e) => handleChange(e, "personal", null, field)}
-              />
-            </div>
-          ))}
+          {["firstName", "lastName", "email", "phone", "summary"].map(
+            (field, idx) => (
+              <div className="col-md-6 mb-3" key={idx}>
+                <input
+                  type={field === "email" ? "email" : "text"}
+                  className="form-control"
+                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  value={cv.personal?.[field] || ""}
+                  onChange={(e) => handleChange(e, "personal", null, field)}
+                />
+              </div>
+            )
+          )}
         </div>
 
         {/* Education */}
@@ -188,7 +206,9 @@ export default function EditResume() {
                 className="form-control"
                 placeholder="Start Date"
                 value={exp.startDate?.slice(0, 10) || ""}
-                onChange={(e) => handleChange(e, "experience", idx, "startDate")}
+                onChange={(e) =>
+                  handleChange(e, "experience", idx, "startDate")
+                }
               />
             </div>
             <div className="col-md-6">
@@ -206,7 +226,9 @@ export default function EditResume() {
                 className="form-control"
                 placeholder="Description"
                 value={exp.description || ""}
-                onChange={(e) => handleChange(e, "experience", idx, "description")}
+                onChange={(e) =>
+                  handleChange(e, "experience", idx, "description")
+                }
               />
             </div>
           </div>

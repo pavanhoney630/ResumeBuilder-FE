@@ -7,7 +7,6 @@ import ResumeCreate from "./Components/ResumeCreator/ResumeCreator.jsx";
 import ViewResume from "../src/Components/ResumeCreator/viewResume.jsx";
 import UpdateResume from "./Components/ResumeCreator/updateResume.jsx";
 
-
 function App() {
   return (
     <BrowserRouter>
@@ -19,7 +18,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/edit-resume/:resumeId" element={<UpdateResume />} />
         <Route path="/view-resume/:resumeId" element={<ViewResume />} />
- 
+
         <Route path="*" element={<h2>404: Page Not Found</h2>} />
       </Routes>
     </BrowserRouter>
