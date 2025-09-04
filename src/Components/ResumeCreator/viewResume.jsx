@@ -18,27 +18,37 @@ const BaseUrl =
     : process.env.REACT_APP_DEV_API_URL;
 
 export default function ViewResume() {
-  const { userId } = useParams();
+  const { resumeId } = useParams();
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchResume = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${BaseUrl}/api/resume/current/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+  const fetchResume = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${BaseUrl}/api/resume/current/${resumeId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Map currentVersion to top-level resume
+      if (res.data?.success && res.data.data?.currentVersion) {
+        setResume({
+          ...res.data.data,
+          ...res.data.data.currentVersion, // Merge currentVersion fields to top-level
         });
-        setResume(res.data.data);
-      } catch (err) {
-        toast.error("Failed to load resume");
-      } finally {
-        setLoading(false);
+      } else {
+        setResume(null);
       }
-    };
-    fetchResume();
-  }, [userId]);
+    } catch (err) {
+      toast.error("Failed to load resume");
+      setResume(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchResume();
+}, [resumeId]);
 
   if (loading)
     return <p className="text-center mt-5 fw-bold">Loading resume...</p>;

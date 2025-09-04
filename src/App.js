@@ -17,8 +17,9 @@ function App() {
         <Route path="/login" element={<LoginAuth />} />
         <Route path="/create-resume" element={<ResumeCreate />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/view-resume/:userId" element={<ViewResume />} />
-        <Route path="/edit-resume/:ResumeId" element={<UpdateResume />} /> 
+        <Route path="/edit-resume/:resumeId" element={<UpdateResume />} />
+        <Route path="/view-resume/:resumeId" element={<ViewResume />} />
+ 
         <Route path="*" element={<h2>404: Page Not Found</h2>} />
       </Routes>
     </BrowserRouter>
