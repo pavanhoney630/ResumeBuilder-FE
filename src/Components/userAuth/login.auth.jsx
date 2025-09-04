@@ -34,7 +34,6 @@ export default function LoginAuth() {
       localStorage.setItem("email", res.data.email);
       localStorage.setItem("name", res.data.name);
 
-      alert(res.data.message || "Login successful");
       navigate("/dashboard"); // redirect after login
     } catch (err) {
       alert(err?.response?.data?.message || "Login failed");
@@ -104,7 +103,10 @@ export default function LoginAuth() {
         </form>
         <p className="text-center mt-3">
           Don’t have an account?{" "}
-          <a href="/signup" className="text-decoration-none fw-bold text-primary">
+          <a
+            href="/signup"
+            className="text-decoration-none fw-bold text-primary"
+          >
             Sign Up
           </a>
         </p>

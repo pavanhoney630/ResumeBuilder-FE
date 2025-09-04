@@ -10,7 +10,6 @@ const BaseUrl =
 
 console.log("BaseUrl:", BaseUrl);
 
-
 export default function SignupAuth() {
   const [form, setForm] = useState({
     name: "",
@@ -31,7 +30,7 @@ export default function SignupAuth() {
     setLoading(true);
     try {
       const res = await axios.post(`${BaseUrl}/api/auth/signup`, form);
-      alert(res.data.message || "Signup successful");
+         console.log("res",res.data)
       navigate("/login");
     } catch (err) {
       alert(err?.response?.data?.message || "Signup failed");
@@ -56,7 +55,9 @@ export default function SignupAuth() {
           backdropFilter: "blur(10px)", // glassmorphism effect
         }}
       >
-        <h2 className="text-center mb-4 fw-bold text-primary">Create an Account</h2>
+        <h2 className="text-center mb-4 fw-bold text-primary">
+          Create an Account
+        </h2>
         <form onSubmit={handleSubmit}>
           {/* Name */}
           <div className="mb-3 input-group">
@@ -149,7 +150,10 @@ export default function SignupAuth() {
         </form>
         <p className="text-center mt-3">
           Already have an account?{" "}
-          <a href="/login" className="text-decoration-none fw-bold text-primary">
+          <a
+            href="/login"
+            className="text-decoration-none fw-bold text-primary"
+          >
             Login
           </a>
         </p>
